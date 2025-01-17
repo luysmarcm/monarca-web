@@ -17,9 +17,9 @@ module.exports = {
 				fondo: "#d1c7bd",
 				gris: "#D9D9D9",
 			},
-			fontFamily: {
-				Montserrat: ["Montserrat"],
-			},
+			// fontFamily: {
+			// 	Montserrat: ["Montserrat"],
+			// },
 			screens: {
 				xs: "280px",
 				sm: "640px",

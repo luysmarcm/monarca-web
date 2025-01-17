@@ -57,7 +57,7 @@ const HowWill = () => {
 						>
 							<p
 								// dangerouslySetInnerHTML={{ __html: t(item.text) }}
-								className="text-lg lg:text-xl text-justify lg:text-justify lg:p-12"
+								className="text-base lg:text-xl text-justify p-4 lg:p-12"
 							>
 								{t(item.text)}
 							</p>

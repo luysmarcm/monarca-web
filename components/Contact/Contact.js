@@ -3,6 +3,7 @@ import HeadingPage from "../HeadingPage/HeadingPage";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import GetQuote from "../GetQuote/GetQuote";
+import FormHearth from "../Form/FormHearth";
 
 const telefono = "13213306424";
 
@@ -18,7 +19,8 @@ const Contact = () => {
 			<HeadingPage text={t("title")} le="text-2xl" le1="text-xl" />
 			<div className=" mx-auto my-8 p-5 lg:px-28">
 				<div className="flex flex-col lg:flex-row justify-center items-center px-0 place-content-between">
-					<GetQuote />
+					{/* <GetQuote /> */}
+					<FormHearth/>
 					<div data-aos="fade-left" className="w-full lg:w-1/2 lg:pl-8">
 						<div className="flex-col items-center py-14">
 							<div className="flex items-center mt-4">

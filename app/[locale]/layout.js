@@ -26,22 +26,6 @@ export default async function LocaleLayout({ children, params }) {
 	return (
 		<html lang={params.locale}>
 			<AOSInit />
-			{/* <Script
-				async
-				src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GID}`}
-			/>
-			<Script
-				id="google-analytics"
-				dangerouslySetInnerHTML={{
-					__html: `
-				window.dataLayer = window.dataLayer || [];
-				function gtag(){dataLayer.push(arguments);}
-				gtag('consent', 'update', { 'analytics_storage': 'granted' });
-				gtag('js', new Date());
-				gtag('config', '${process.env.NEXT_PUBLIC_GID}', { page_path: window.location.pathname });
-				`,
-				}}
-			/> */}
 			<body className="max-w-max min-w-min mx-auto">
 				<NextIntlClientProvider messages={messages}>
 					<Header />

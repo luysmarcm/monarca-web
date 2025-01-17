@@ -12,7 +12,7 @@ return (
 			autoPlay
 			loop
 			muted
-			className="absolute top-0 left-0 w-full h-full object-cover opacity-70 bg-primary"
+			className="absolute top-0 left-0 w-full h-full object-cover"
 		>
 			<source src="/videos/vpp.mp4" type="video/mp4" />
 			Tu navegador no admite la etiqueta de video.
