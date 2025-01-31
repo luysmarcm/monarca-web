@@ -15,7 +15,9 @@ export const metadata = {
 	title: "Monarca | Life Improvement",
 	description:
 		"Your reliable partner to improve your property! We offer customized and effective solutions for projects of any size, guaranteeing results that exceed your expectations.",
-	// icon: "/image/logoM.png",
+	icons: {
+		icon: ["/favicon.ico"], // Ruta a tu favicon
+	},
 };
 
 export default async function LocaleLayout({ children, params }) {
@@ -25,6 +27,42 @@ export default async function LocaleLayout({ children, params }) {
 
 	return (
 		<html lang={params.locale}>
+			<Head>
+				<link rel="icon" href="/favicon.ico" />
+				<link rel="icon" type="image/png" href="/favicon.png" />
+				<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+				{/* Google tag (gtag.js) */}
+				<script
+					async
+					src={`https://www.googletagmanager.com/gtag/js?id=AW-11354093423`}
+				></script>
+				<script
+					dangerouslySetInnerHTML={{
+						__html: `
+						window.dataLayer = window.dataLayer || [];
+						function gtag(){dataLayer.push(arguments);}
+						gtag('js', new Date());
+						gtag('config', 'AW-11354093423');
+						`,
+					}}
+				/>
+				{/* <script
+					src={`https://widget.gethearth.com/script.js`}
+					id="hearth-script"
+					data-orgid="49438"
+					data-partner="monarca-life-improvement"
+					data-orgUuid="9acc99cb-c1be-46fa-9ec8-2ea54a8e0b62"
+					async
+				></script> */}
+				<script
+					src="https://widget.gethearth.com/script.js"
+					id="hearth-script"
+					data-orgid="49438"
+					data-partner="monarca-life-improvement"
+					data-orgUuid="9acc99cb-c1be-46fa-9ec8-2ea54a8e0b62"
+					async
+				></script>
+			</Head>
 			<AOSInit />
 			<body className="max-w-max min-w-min mx-auto">
 				<NextIntlClientProvider messages={messages}>
