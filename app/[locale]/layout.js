@@ -6,8 +6,8 @@ import Footer from "@/components/Layout/Footer.";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { AOSInit } from "@/aos"
-import Script from "next/script";
 import Head from "next/head";
+import GTag from "./gtag";
 
 const montse = Montserrat({ subsets: ["latin"] });
 
@@ -72,6 +72,7 @@ export default async function LocaleLayout({ children, params }) {
 					</div>
 					<Footer />
 				</NextIntlClientProvider>
+				<GTag />
 			</body>
 		</html>
 	);
