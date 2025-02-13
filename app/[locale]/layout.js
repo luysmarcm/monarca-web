@@ -31,21 +31,6 @@ export default async function LocaleLayout({ children, params }) {
 				<link rel="icon" href="/favicon.ico" />
 				<link rel="icon" type="image/png" href="/favicon.png" />
 				<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-				{/* Google tag (gtag.js) */}
-				{/* <script
-					async
-					src={`https://www.googletagmanager.com/gtag/js?id=AW-11354093423`}
-				></script>
-				<script
-					dangerouslySetInnerHTML={{
-						__html: `
-						window.dataLayer = window.dataLayer || [];
-						function gtag(){dataLayer.push(arguments);}
-						gtag('js', new Date());
-						gtag('config', 'AW-11354093423');
-						`,
-					}}
-				/> */}
 				{/* <script
 					src={`https://widget.gethearth.com/script.js`}
 					id="hearth-script"
