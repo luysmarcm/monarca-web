@@ -47,6 +47,10 @@ return (
           gtag('event', 'conversion', {'send_to': 'AW-16850221006/fT7-CIabmp0aEM7v5-I-'});
         `}
 		</Script>
+		<Script
+			src="https://www.googletagmanager.com/ns.html?id=GTM-WT6TRZ99"
+			strategy="afterInteractive"
+		/>
 
 		<Script id="google-tag-manager" strategy="afterInteractive">
 			{`
