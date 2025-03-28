@@ -28,11 +28,6 @@ const allies = [
 		url: "",
 	},
 	{
-		id: "05",
-		imagen: "/image/Zolarzo-logo-black-horizontal-300x157.png",
-		url: "",
-	},
-	{
 		id: "06",
 		imagen: "/image/sunlight-logo.png",
 		url: "",

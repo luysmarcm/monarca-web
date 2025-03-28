@@ -14,7 +14,7 @@ return (
 			muted
 			className="absolute top-0 left-0 w-full h-full object-cover"
 		>
-			<source src="/videos/vpp.mp4" type="video/mp4" />
+			<source src="/videos/banner.mp4" type="video/mp4" />
 			Tu navegador no admite la etiqueta de video.
 		</video>
 		<div className="absolute inset-0 flex items-center justify-center">

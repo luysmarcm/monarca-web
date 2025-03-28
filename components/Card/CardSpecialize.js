@@ -32,10 +32,11 @@ const CardSpecialize = ({ item,t }) => {
 				</div>
 			</div>
 			<a
-				href={`https://wa.me/+1${formatNumber(telefono)}?text=${t(
-					item.message
-				)}`}
-				target="_blank"
+				// href={`https://wa.me/+1${formatNumber(telefono)}?text=${t(
+				// 	item.message
+				// )}`}
+				// target="_blank"
+				href="#contact"
 			>
 				<div className="mt-14">
 					<p className="text-lg text-center ">
