@@ -6,6 +6,7 @@ return (
 		<Script
 			src="https://www.googletagmanager.com/gtag/js?id=G-ZKDGGGZQGQ"
 			strategy="afterInteractive"
+			rel="preconnect"
 		/>
 		<Script id="google-analytics" strategy="afterInteractive">
 			{`
@@ -19,6 +20,7 @@ return (
 		<Script
 			src="https://www.googletagmanager.com/gtag/js?id=AW-11354093423"
 			strategy="afterInteractive"
+			rel="preconnect"
 		/>
 		<Script id="google-ads" strategy="afterInteractive">
 			{`
@@ -32,6 +34,7 @@ return (
 		<Script
 			src="https://www.googletagmanager.com/gtag/js?id=AW-16850221006"
 			strategy="afterInteractive"
+			rel="preconnect"
 		/>
 		<Script id="google-ads" strategy="afterInteractive">
 			{`
@@ -50,6 +53,7 @@ return (
 		<Script
 			src="https://www.googletagmanager.com/ns.html?id=GTM-WT6TRZ99"
 			strategy="afterInteractive"
+			rel="preconnect"
 		/>
 
 		<Script id="google-tag-manager" strategy="afterInteractive">
@@ -66,6 +70,7 @@ return (
 				src="https://www.googletagmanager.com/ns.html?id=GTM-WT6TRZ99"
 				height="0"
 				width="0"
+				rel="preconnect"
 				style={{ display: "none", visibility: "hidden" }}
 			></iframe>
 		</noscript>
