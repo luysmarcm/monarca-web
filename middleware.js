@@ -7,66 +7,54 @@ const intlMiddleware = createMiddleware({
   pathnames
 });
 
-// 🧠 memoria simple (edge)
+// 🧠 Memoria efímera en el Edge
 const rateLimitMap = new Map();
 
 export default function middleware(req) {
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0] ||
-    req.ip ||
-    "unknown";
-
-  const ua = (req.headers.get("user-agent") || "").toLowerCase();
   const url = req.nextUrl.pathname;
+  
+  // 1. Omitir archivos internos de Next.js inmediatamente para ahorrar recursos
+  if (url.startsWith('/_next') || url.includes('/favicon.ico')) {
+    return intlMiddleware(req);
+  }
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.ip || "unknown";
+  const ua = (req.headers.get("user-agent") || "").toLowerCase();
+  const resourceType = req.headers.get("sec-fetch-dest");
+  const destination = req.headers.get("sec-fetch-site");
 
   // =========================
-  // ✅ Bots permitidos
+  // 🛡️ Protección contra Hotlinking (Evita que usen tus archivos en otras webs)
   // =========================
-  const allowedBots = [
-    "googlebot",
-    "bingbot",
-    "vercel",
-    "google-inspectiontool"
-  ];
+  if (destination === "cross-site" && (resourceType === "image" || resourceType === "video")) {
+    return new Response("No hotlinking allowed", { status: 403 });
+  }
 
+  // =========================
+  // ✅ Bots permitidos (SEO y Vercel)
+  // =========================
+  const allowedBots = ["googlebot", "bingbot", "vercel", "google-inspectiontool"];
   if (allowedBots.some(bot => ua.includes(bot))) {
     return intlMiddleware(req);
   }
 
   // =========================
-  // 🚫 Bots bloqueados (UA)
+  // 🚫 Bots bloqueados (Filtro por User-Agent)
   // =========================
-  const blockedPatterns = [
-    "bot",
-    "crawl",
-    "spider",
-    "scrapy",
-    "curl",
-    "wget",
-    "python",
-    "axios",
-    "node-fetch",
-    "postman"
-  ];
-
+  const blockedPatterns = ["bot", "crawl", "spider", "scrapy", "curl", "wget", "python", "axios", "node-fetch", "postman"];
   if (blockedPatterns.some(p => ua.includes(p))) {
     return new Response("Blocked (bot)", { status: 403 });
   }
 
   // =========================
-  // ⚡ Rate limiting por IP
+  // ⚡ Rate limiting por IP (Ventana de 10s)
   // =========================
   const now = Date.now();
-  const windowMs = 10 * 1000; // 10 segundos
-  const maxRequests = 20; // máximo requests por ventana
+  const windowMs = 10 * 1000;
+  const maxRequests = 20;
 
-  if (!rateLimitMap.has(ip)) {
-    rateLimitMap.set(ip, []);
-  }
-
+  if (!rateLimitMap.has(ip)) rateLimitMap.set(ip, []);
   const timestamps = rateLimitMap.get(ip);
-
-  // limpiar timestamps viejos
   const recent = timestamps.filter(ts => now - ts < windowMs);
   recent.push(now);
   rateLimitMap.set(ip, recent);
@@ -76,26 +64,19 @@ export default function middleware(req) {
   }
 
   // =========================
-  // 🧱 Protección rutas sospechosas
+  // 🧱 Rutas de ataque comunes
   // =========================
-  const suspiciousPaths = [
-    "/wp-admin",
-    "/xmlrpc.php",
-    "/.env",
-    "/config",
-    "/admin"
-  ];
-
+  const suspiciousPaths = ["/wp-admin", "/xmlrpc.php", "/.env", "/config", "/admin"];
   if (suspiciousPaths.some(p => url.includes(p))) {
     return new Response("Blocked (suspicious)", { status: 403 });
   }
 
-  // =========================
-  // ✅ continuar normal
-  // =========================
   return intlMiddleware(req);
 }
 
 export const config = {
-  matcher: ["/", "/(es|en)/:path*"],
+  // El matcher ahora captura TODO excepto archivos de sistema de Next.js
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
+  ],
 };
