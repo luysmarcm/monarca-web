@@ -7,30 +7,92 @@ const intlMiddleware = createMiddleware({
   pathnames
 });
 
+// 🧠 memoria simple (edge)
+const rateLimitMap = new Map();
+
 export default function middleware(req) {
-  const ua = req.headers.get('user-agent') || '';
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0] ||
+    req.ip ||
+    "unknown";
 
-  const allowedBots = ['googlebot', 'bingbot'];
-  const isAllowed = allowedBots.some(b => ua.toLowerCase().includes(b));
+  const ua = (req.headers.get("user-agent") || "").toLowerCase();
+  const url = req.nextUrl.pathname;
 
-  const blockedBots = [
-    'bot',
-    'crawl',
-    'spider',
-    'curl',
-    'wget',
-    'python',
-    'axios'
+  // =========================
+  // ✅ Bots permitidos
+  // =========================
+  const allowedBots = [
+    "googlebot",
+    "bingbot",
+    "vercel",
+    "google-inspectiontool"
   ];
 
-  const isBlocked = blockedBots.some(b => ua.toLowerCase().includes(b));
-
-  // 🚫 Bloquear bots
-  if (isBlocked && !isAllowed) {
-    return new Response('Blocked', { status: 403 });
+  if (allowedBots.some(bot => ua.includes(bot))) {
+    return intlMiddleware(req);
   }
 
-  // ✅ continuar con next-intl
+  // =========================
+  // 🚫 Bots bloqueados (UA)
+  // =========================
+  const blockedPatterns = [
+    "bot",
+    "crawl",
+    "spider",
+    "scrapy",
+    "curl",
+    "wget",
+    "python",
+    "axios",
+    "node-fetch",
+    "postman"
+  ];
+
+  if (blockedPatterns.some(p => ua.includes(p))) {
+    return new Response("Blocked (bot)", { status: 403 });
+  }
+
+  // =========================
+  // ⚡ Rate limiting por IP
+  // =========================
+  const now = Date.now();
+  const windowMs = 10 * 1000; // 10 segundos
+  const maxRequests = 20; // máximo requests por ventana
+
+  if (!rateLimitMap.has(ip)) {
+    rateLimitMap.set(ip, []);
+  }
+
+  const timestamps = rateLimitMap.get(ip);
+
+  // limpiar timestamps viejos
+  const recent = timestamps.filter(ts => now - ts < windowMs);
+  recent.push(now);
+  rateLimitMap.set(ip, recent);
+
+  if (recent.length > maxRequests) {
+    return new Response("Too many requests", { status: 429 });
+  }
+
+  // =========================
+  // 🧱 Protección rutas sospechosas
+  // =========================
+  const suspiciousPaths = [
+    "/wp-admin",
+    "/xmlrpc.php",
+    "/.env",
+    "/config",
+    "/admin"
+  ];
+
+  if (suspiciousPaths.some(p => url.includes(p))) {
+    return new Response("Blocked (suspicious)", { status: 403 });
+  }
+
+  // =========================
+  // ✅ continuar normal
+  // =========================
   return intlMiddleware(req);
 }
 
