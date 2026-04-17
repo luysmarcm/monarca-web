@@ -7,51 +7,40 @@ const intlMiddleware = createMiddleware({
   pathnames
 });
 
-// 🧠 Memoria efímera en el Edge
 const rateLimitMap = new Map();
 
 export default function middleware(req) {
   const url = req.nextUrl.pathname;
+  const searchParams = req.nextUrl.searchParams.toString();
   
-  // 1. Omitir archivos internos de Next.js inmediatamente para ahorrar recursos
+  // 1. Bloqueo inmediato de Query Params (Frena el 1.2M de ISR Writes)
+  // Si tu landing no usa filtros o búsquedas, esto es vital.
+  if (searchParams.length > 0) {
+    return new Response("Query parameters not allowed", { status: 403 });
+  }
+
+  // 2. Omitir archivos internos de Next.js
   if (url.startsWith('/_next') || url.includes('/favicon.ico')) {
     return intlMiddleware(req);
   }
 
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.ip || "unknown";
   const ua = (req.headers.get("user-agent") || "").toLowerCase();
-  const resourceType = req.headers.get("sec-fetch-dest");
-  const destination = req.headers.get("sec-fetch-site");
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] || req.ip || "unknown";
 
-  // =========================
-  // 🛡️ Protección contra Hotlinking (Evita que usen tus archivos en otras webs)
-  // =========================
-  if (destination === "cross-site" && (resourceType === "image" || resourceType === "video")) {
-    return new Response("No hotlinking allowed", { status: 403 });
-  }
-
-  // =========================
-  // ✅ Bots permitidos (SEO y Vercel)
-  // =========================
-  const allowedBots = ["googlebot", "bingbot", "vercel", "google-inspectiontool"];
-  if (allowedBots.some(bot => ua.includes(bot))) {
-    return intlMiddleware(req);
-  }
-
-  // =========================
-  // 🚫 Bots bloqueados (Filtro por User-Agent)
-  // =========================
-  const blockedPatterns = ["bot", "crawl", "spider", "scrapy", "curl", "wget", "python", "axios", "node-fetch", "postman"];
+  // 3. Bloqueo de Bots por User-Agent (Antes de cualquier otra lógica)
+  const blockedPatterns = ["bot", "crawl", "spider", "scrapy", "curl", "wget", "python", "axios", "node-fetch", "postman", "headless"];
   if (blockedPatterns.some(p => ua.includes(p))) {
-    return new Response("Blocked (bot)", { status: 403 });
+    // Excepción para bots buenos
+    const allowedBots = ["googlebot", "bingbot", "vercel", "google-inspectiontool"];
+    if (!allowedBots.some(bot => ua.includes(bot))) {
+      return new Response("Blocked (bot)", { status: 403 });
+    }
   }
 
-  // =========================
-  // ⚡ Rate limiting por IP (Ventana de 10s)
-  // =========================
+  // 4. Rate limiting más estricto (Reducido a 10 requests por 10s)
   const now = Date.now();
   const windowMs = 10 * 1000;
-  const maxRequests = 20;
+  const maxRequests = 10; 
 
   if (!rateLimitMap.has(ip)) rateLimitMap.set(ip, []);
   const timestamps = rateLimitMap.get(ip);
@@ -63,20 +52,21 @@ export default function middleware(req) {
     return new Response("Too many requests", { status: 429 });
   }
 
-  // =========================
-  // 🧱 Rutas de ataque comunes
-  // =========================
-  const suspiciousPaths = ["/wp-admin", "/xmlrpc.php", "/.env", "/config", "/admin"];
+  // 5. Hotlinking y rutas sospechosas
+  const destination = req.headers.get("sec-fetch-site");
+  const resourceType = req.headers.get("sec-fetch-dest");
+  if (destination === "cross-site" && (resourceType === "image" || resourceType === "video")) {
+    return new Response("No hotlinking", { status: 403 });
+  }
+
+  const suspiciousPaths = ["/wp-admin", "/xmlrpc.php", "/.env", "/config", "/admin", "/login"];
   if (suspiciousPaths.some(p => url.includes(p))) {
-    return new Response("Blocked (suspicious)", { status: 403 });
+    return new Response("Blocked", { status: 403 });
   }
 
   return intlMiddleware(req);
 }
 
 export const config = {
-  // El matcher ahora captura TODO excepto archivos de sistema de Next.js
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)'],
 };
